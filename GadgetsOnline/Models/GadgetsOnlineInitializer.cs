@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 
 namespace GadgetsOnline.Models
@@ -16,6 +17,9 @@ namespace GadgetsOnline.Models
                 new Category { CategoryId = 4, Name = "Audio", Description = "Latest audio devices" },
                 new Category { CategoryId = 5, Name = "Accessories", Description = "USB Cables, Mobile chargers and Keyboards etc" }
             };
+            // Ensure DateTime uses UTC for PostgreSQL compatibility
+            DateTime now = DateTime.Now.ToUniversalTime();
+            
             categories.ForEach(c => context.Categories.Add(c));
 
             // Products
