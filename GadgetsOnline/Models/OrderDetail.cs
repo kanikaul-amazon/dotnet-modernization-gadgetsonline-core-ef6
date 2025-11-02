@@ -1,16 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
 namespace GadgetsOnline.Models
 {
+    [Table("orderdetails", Schema = "public")]
     public class OrderDetail
     {
+        [Key]
+        [Column("orderdetailid")]
         public int OrderDetailId { get; set; }
+        
+        [Column("orderid")]
         public int OrderId { get; set; }
+        
+        [Column("productid")]
         public int ProductId { get; set; }
+        
+        [Column("quantity")]
         public int Quantity { get; set; }
+        
+        [Column("unitprice", TypeName = "numeric(19,4)")]
         public decimal UnitPrice { get; set; }
 
         public virtual Product Product { get; set; }
