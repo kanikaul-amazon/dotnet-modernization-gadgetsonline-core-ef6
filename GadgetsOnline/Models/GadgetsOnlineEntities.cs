@@ -1,9 +1,20 @@
-using GadgetsOnline.Models;
+﻿using GadgetsOnline.Models;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
+using Npgsql;
 
 namespace GadgetsOnline.Models
 {
+    public class GadgetsOnlineEntitiesPostgreSqlConfiguration : DbConfiguration
+    {
+        public GadgetsOnlineEntitiesPostgreSqlConfiguration()
+        {
+            SetProviderServices("Npgsql", Npgsql.NpgsqlServices.Instance);
+            SetDefaultConnectionFactory(new Npgsql.NpgsqlConnectionFactory());
+        }
+    }
+    
+    [DbConfigurationType(typeof(GadgetsOnlineEntitiesPostgreSqlConfiguration))]
     public class GadgetsOnlineEntities : DbContext
     {
         // Default constructor using connection string name from config
@@ -29,26 +40,36 @@ namespace GadgetsOnline.Models
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            // Configure schema name for PostgreSQL
+            modelBuilder.HasDefaultSchema("atx-database-rds_dbo");
+            
             // Configure relationships
             modelBuilder.Entity<Category>()
+                .ToTable("categories")
                 .HasMany(c => c.Products)
                 .WithRequired(p => p.Category)
                 .HasForeignKey(p => p.CategoryId);
 
             modelBuilder.Entity<Cart>()
+                .ToTable("carts")
                 .HasRequired(c => c.Product)
                 .WithMany()
                 .HasForeignKey(c => c.ProductId);
 
             modelBuilder.Entity<Order>()
+                .ToTable("orders")
                 .HasMany(o => o.OrderDetails)
                 .WithRequired(od => od.Order)
                 .HasForeignKey(od => od.OrderId);
 
             modelBuilder.Entity<OrderDetail>()
+                .ToTable("orderdetails")
                 .HasRequired(od => od.Product)
                 .WithMany()
                 .HasForeignKey(od => od.ProductId);
+                
+            modelBuilder.Entity<Product>()
+                .ToTable("products");
         }
 
     }

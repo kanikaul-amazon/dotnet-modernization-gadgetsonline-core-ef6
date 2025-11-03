@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -43,7 +43,7 @@ namespace GadgetsOnline.Controllers
             try
             {
                 order.Username = "Anonymous";
-                order.OrderDate = DateTime.Now;
+                order.OrderDate = DateTime.Now.ToUniversalTime();
                 bool result = GetOrderProcess().ProcessOrder(order, this.HttpContext);
                 return RedirectToAction("Complete", new
                 {

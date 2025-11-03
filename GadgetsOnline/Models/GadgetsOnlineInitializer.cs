@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 
 namespace GadgetsOnline.Models
@@ -37,6 +38,9 @@ namespace GadgetsOnline.Models
             };
             products.ForEach(p => context.Products.Add(p));
 
+            // Use ToUniversalTime for PostgreSQL compatibility with date/time fields
+            DateTime currentTime = DateTime.Now.ToUniversalTime();
+            
             context.SaveChanges();
         }
     }
