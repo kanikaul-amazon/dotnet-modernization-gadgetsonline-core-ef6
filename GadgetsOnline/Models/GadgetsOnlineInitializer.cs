@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 
 namespace GadgetsOnline.Models
@@ -18,6 +19,9 @@ namespace GadgetsOnline.Models
             };
             categories.ForEach(c => context.Categories.Add(c));
 
+            // Ensure dates are UTC for PostgreSQL compatibility
+            DateTime now = DateTime.Now.ToUniversalTime();
+            
             // Products
             var products = new List<Product>
             {
