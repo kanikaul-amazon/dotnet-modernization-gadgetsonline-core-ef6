@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 
 namespace GadgetsOnline.Models
@@ -36,6 +37,29 @@ namespace GadgetsOnline.Models
                 new Product{ ProductId = 13, CategoryId=5, Name="Keyboard", Price=9.99M, ProductArtUrl = "/Content/Images/placeholder.gif"},
             };
             products.ForEach(p => context.Products.Add(p));
+
+            // Convert all DateTime.Now to UTC for PostgreSQL compatibility
+            foreach (var entity in context.ChangeTracker.Entries())
+            {
+                if (entity.State == EntityState.Added)
+                {
+                    foreach (var prop in entity.CurrentValues.PropertyNames)
+                    {
+                        if (entity.CurrentValues[prop] is DateTime)
+                        {
+                            DateTime dt = (DateTime)entity.CurrentValues[prop];
+                            if (dt.Kind == DateTimeKind.Unspecified)
+                            {
+                                entity.CurrentValues[prop] = DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+                            }
+                            else if (dt.Kind == DateTimeKind.Local)
+                            {
+                                entity.CurrentValues[prop] = dt.ToUniversalTime();
+                            }
+                        }
+                    }
+                }
+            }
 
             context.SaveChanges();
         }
