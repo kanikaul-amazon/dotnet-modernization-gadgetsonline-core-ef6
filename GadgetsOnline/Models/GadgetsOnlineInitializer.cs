@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 
 namespace GadgetsOnline.Models
@@ -37,7 +38,36 @@ namespace GadgetsOnline.Models
             };
             products.ForEach(p => context.Products.Add(p));
 
-            context.SaveChanges();
+            // Ensure all DateTime values are in UTC for PostgreSQL compatibility
+            foreach (var cartItem in context.Carts)
+            {
+                cartItem.DateCreated = DateTime.SpecifyKind(cartItem.DateCreated, DateTimeKind.Utc);
+            }
+
+            foreach (var order in context.Orders)
+            {
+                order.OrderDate = DateTime.SpecifyKind(order.OrderDate, DateTimeKind.Utc);
+            }
+            
+            // Handle PostgreSQL-specific data seeding
+            try
+            {
+                context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                // PostgreSQL specific error handling
+                // Log or handle sequence-related errors
+                Console.WriteLine($"Database initialization error: {ex.Message}");
+                
+                // If this is a sequence-related error, try to reset sequences
+                if (ex.Message.Contains("sequence") || ex.Message.Contains("violates unique constraint"))
+                {
+                    // In a real application, you might need to execute SQL to reset sequences
+                    // This would require raw SQL execution capability
+                }
+                throw; // Rethrow to ensure initialization fails properly if it can't be handled
+            }
         }
     }
 }
