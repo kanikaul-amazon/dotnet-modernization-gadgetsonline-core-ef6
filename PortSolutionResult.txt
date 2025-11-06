@@ -1,0 +1,92 @@
+==========
+References
+==========
+GadgetsOnline.Components
+Microsoft.AspNetCore.Mvc
+GadgetsOnline.Services
+System.Threading.Tasks
+System.Collections.Generic
+GadgetsOnline.Controllers
+Microsoft.AspNetCore.Http
+GadgetsOnline.Models
+System
+<global namespace>
+GadgetsOnline.ViewModel
+System.Text.Encodings.Web
+System.ComponentModel.DataAnnotations.Schema
+System.ComponentModel.DataAnnotations
+System.Data.Entity
+System.Data.Entity.Infrastructure
+System.Data.Entity.ModelConfiguration.Configuration
+System.Data.Entity.ModelConfiguration.Conventions
+System.Data.Entity.ModelConfiguration
+System.ComponentModel
+GadgetsOnline
+Microsoft.Extensions.Hosting
+Microsoft.AspNetCore.Hosting
+System.IO
+System.Linq
+System.Security.Claims
+System.Security.Principal
+Microsoft.Extensions.Configuration
+Microsoft.Extensions.DependencyInjection
+Microsoft.AspNetCore.Builder
+System.Web
+Npgsql
+Microsoft.Extensions.Logging
+project.all
+
+===============
+DownloadedFiles
+===============
+project.all.json
+system.web.json
+system.data.entity.json
+
+==============
+ProjectResults
+==============
+----------------------
+Showing results for: /QNet/site-packages/atx_dot_net_strands_cli/all_local_test_output/artifact-GadgetsOnline/artifact/sourceCode/GadgetsOnline/GadgetsOnline.csproj
+----------------------
+---------------------------
+Target Versions:
+---------------------------
+net8.0
+---------------------------
+Source Versions:
+---------------------------
+net48
+---------------------------
+Upgrade packages:
+---------------------------
+---------------------------
+Action packages:
+---------------------------
+Microsoft.AspNetCore.SystemWebAdapters,1.4.0
+
+----------------------
+Showing results for: /QNet/site-packages/atx_dot_net_strands_cli/all_local_test_output/artifact-GadgetsOnline/artifact/sourceCode/GadgetsOnline/GadgetsOnline.csproj
+----------------------
+---------------------------
+Target Versions:
+---------------------------
+net8.0
+---------------------------
+Source Versions:
+---------------------------
+net48
+---------------------------
+Upgrade packages:
+---------------------------
+---------------------------
+Action packages:
+---------------------------
+Microsoft.AspNetCore.SystemWebAdapters,1.4.0
+
+
+===========
+BuildErrors
+===========
+
+
