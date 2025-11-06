@@ -1,9 +1,20 @@
-using GadgetsOnline.Models;
+﻿using GadgetsOnline.Models;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
+using Npgsql;
 
 namespace GadgetsOnline.Models
 {
+    public class GadgetsOnlineEntitiesPostgreSqlConfiguration : DbConfiguration
+    {
+        public GadgetsOnlineEntitiesPostgreSqlConfiguration()
+        {
+            SetProviderServices("Npgsql", Npgsql.NpgsqlServices.Instance);
+            SetDefaultConnectionFactory(new Npgsql.NpgsqlConnectionFactory());
+        }
+    }
+    
+    [DbConfigurationType(typeof(GadgetsOnlineEntitiesPostgreSqlConfiguration))]
     public class GadgetsOnlineEntities : DbContext
     {
         // Default constructor using connection string name from config
@@ -29,6 +40,13 @@ namespace GadgetsOnline.Models
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            // Configure table mappings for PostgreSQL
+            modelBuilder.Entity<Product>().ToTable("products", "atx-database-rds_dbo");
+            modelBuilder.Entity<Category>().ToTable("categories", "atx-database-rds_dbo");
+            modelBuilder.Entity<Cart>().ToTable("carts", "atx-database-rds_dbo");
+            modelBuilder.Entity<Order>().ToTable("orders", "atx-database-rds_dbo");
+            modelBuilder.Entity<OrderDetail>().ToTable("orderdetails", "atx-database-rds_dbo");
+
             // Configure relationships
             modelBuilder.Entity<Category>()
                 .HasMany(c => c.Products)
@@ -49,6 +67,9 @@ namespace GadgetsOnline.Models
                 .HasRequired(od => od.Product)
                 .WithMany()
                 .HasForeignKey(od => od.ProductId);
+            
+            // For boolean properties that need to be stored as integer in PostgreSQL
+            // If any boolean properties exist in the model, they should be converted here
         }
 
     }

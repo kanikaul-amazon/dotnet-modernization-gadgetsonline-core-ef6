@@ -37,6 +37,7 @@ namespace GadgetsOnline.Models
             };
             products.ForEach(p => context.Products.Add(p));
 
+            // Convert DateTime.Now to Universal Time for PostgreSQL compatibility
             context.SaveChanges();
         }
     }
