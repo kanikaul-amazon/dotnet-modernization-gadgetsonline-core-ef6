@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Npgsql;
+using System.Collections.Generic;
 using System.Data.Entity;
+using System.Linq;
 
 namespace GadgetsOnline.Models
 {
@@ -7,6 +9,9 @@ namespace GadgetsOnline.Models
     {
         protected override void Seed(GadgetsOnlineEntities context)
         {
+            // Create sequences for identity columns if they don't exist (PostgreSQL requirement)
+            EnsureSequencesExist(context);
+
             // Categories
             var categories = new List<Category>
             {
@@ -38,6 +43,43 @@ namespace GadgetsOnline.Models
             products.ForEach(p => context.Products.Add(p));
 
             context.SaveChanges();
+            
+            // Update sequence values after inserting data with explicit IDs (PostgreSQL specific)
+            UpdateSequenceValues(context);
+        }
+        
+        private void EnsureSequencesExist(GadgetsOnlineEntities context)
+        {
+            // Execute raw SQL to create sequences if they don't exist
+            // These are PostgreSQL-specific operations for identity columns
+            var commands = new[]
+            {
+                "CREATE SEQUENCE IF NOT EXISTS public.""Categories_CategoryId_seq"" START WITH 6",
+                "CREATE SEQUENCE IF NOT EXISTS public.""Products_ProductId_seq"" START WITH 14",
+                "CREATE SEQUENCE IF NOT EXISTS public.""Carts_RecordId_seq""",
+                "CREATE SEQUENCE IF NOT EXISTS public.""Orders_OrderId_seq""",
+                "CREATE SEQUENCE IF NOT EXISTS public.""OrderDetails_OrderDetailId_seq"""
+            };
+
+            foreach (var cmd in commands)
+            {
+                context.Database.ExecuteSqlCommand(cmd);
+            }
+        }
+
+        private void UpdateSequenceValues(GadgetsOnlineEntities context)
+        {
+            // PostgreSQL requires manually updating sequences after inserting records with explicit IDs
+            var commands = new[]
+            {
+                "SELECT SETVAL('public.""Categories_CategoryId_seq""', (SELECT MAX(""CategoryId"") FROM public.""Categories""))",
+                "SELECT SETVAL('public.""Products_ProductId_seq""', (SELECT MAX(""ProductId"") FROM public.""Products""))"
+            };
+
+            foreach (var cmd in commands)
+            {
+                context.Database.ExecuteSqlCommand(cmd);
+            }
         }
     }
 }

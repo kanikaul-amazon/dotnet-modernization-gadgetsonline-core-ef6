@@ -1,9 +1,20 @@
-using GadgetsOnline.Models;
+﻿using GadgetsOnline.Models;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
+using Npgsql;
 
 namespace GadgetsOnline.Models
 {
+    public class GadgetsOnlineEntitiesPostgreSqlConfiguration : DbConfiguration
+    {
+        public GadgetsOnlineEntitiesPostgreSqlConfiguration()
+        {
+            SetProviderServices("Npgsql", Npgsql.NpgsqlServices.Instance);
+            SetDefaultConnectionFactory(new Npgsql.NpgsqlConnectionFactory());
+        }
+    }
+
+    [DbConfigurationType(typeof(GadgetsOnlineEntitiesPostgreSqlConfiguration))]
     public class GadgetsOnlineEntities : DbContext
     {
         // Default constructor using connection string name from config
@@ -50,9 +61,6 @@ namespace GadgetsOnline.Models
                 .WithMany()
                 .HasForeignKey(od => od.ProductId);
         }
-
     }
-
-
 }
 
