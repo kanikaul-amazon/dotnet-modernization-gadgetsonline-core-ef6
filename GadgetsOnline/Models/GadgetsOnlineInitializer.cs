@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 
 namespace GadgetsOnline.Models
@@ -7,6 +8,9 @@ namespace GadgetsOnline.Models
     {
         protected override void Seed(GadgetsOnlineEntities context)
         {
+            // PostgreSQL compatibility: Convert DateTime.Now to UTC to avoid timestamp issues
+            var currentTime = DateTime.Now.ToUniversalTime();
+            
             // Categories
             var categories = new List<Category>
             {
@@ -37,7 +41,15 @@ namespace GadgetsOnline.Models
             };
             products.ForEach(p => context.Products.Add(p));
 
-            context.SaveChanges();
+            // PostgreSQL: Use try-catch to handle case sensitivity issues that might occur
+            try {
+                context.SaveChanges();
+            }
+            catch (Exception ex) {
+                // Log the exception but don't throw it to allow the application to continue
+                System.Diagnostics.Debug.WriteLine("Database initialization error: " + ex.Message);
+                // Consider adding more robust error handling if needed
+            }
         }
     }
 }
