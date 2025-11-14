@@ -1,0 +1,228 @@
+{
+  "extraction_summary": {
+    "total_sql_statements_extracted": 0,
+    "extraction_date": "2024-11-14",
+    "extraction_approach": "No raw SQL extraction required - Application uses Entity Framework 6 with LINQ to Entities exclusively"
+  },
+  "database_access_pattern": {
+    "type": "Entity Framework 6 with LINQ to Entities",
+    "provider": "EntityFramework6.Npgsql v6.4.3",
+    "entity_framework_version": "6.5.1",
+    "no_raw_sql": true,
+    "no_ado_net_classes": true,
+    "no_sql_construction": true,
+    "no_stored_procedures": true,
+    "no_sql_transactions": true
+  },
+  "linq_queries_analyzed": {
+    "total_linq_query_patterns": 15,
+    "service_classes": [
+      {
+        "file": "Services/Inventory.cs",
+        "class": "Inventory",
+        "queries": [
+          {
+            "query_id": "LINQ_001",
+            "method": "GetBestSellers",
+            "line_number": 21,
+            "query_type": "SELECT with LIMIT",
+            "linq_pattern": "Products.Take(count).ToList()",
+            "description": "Retrieves top N products for best sellers display",
+            "entities_accessed": ["Products"],
+            "parameters": ["count"],
+            "conversion_required": false,
+            "notes": "LINQ Take() translates to PostgreSQL LIMIT automatically"
+          },
+          {
+            "query_id": "LINQ_002",
+            "method": "GetAllCategories",
+            "line_number": 28,
+            "query_type": "SELECT all",
+            "linq_pattern": "Categories.ToList()",
+            "description": "Retrieves all product categories",
+            "entities_accessed": ["Categories"],
+            "parameters": [],
+            "conversion_required": false,
+            "notes": "Simple materialization query"
+          },
+          {
+            "query_id": "LINQ_003",
+            "method": "GetAllProductsInCategory",
+            "line_number": 33,
+            "query_type": "SELECT with WHERE",
+            "linq_pattern": "Products.Where(p => p.Category.Name == category).ToList()",
+            "description": "Filters products by category name using navigation property",
+            "entities_accessed": ["Products", "Categories"],
+            "parameters": ["category"],
+            "conversion_required": false,
+            "notes": "Navigation property generates PostgreSQL JOIN automatically"
+          },
+          {
+            "query_id": "LINQ_004",
+            "method": "GetProductById",
+            "line_number": 39,
+            "query_type": "SELECT with WHERE and FIRST",
+            "linq_pattern": "Products.Where(p => p.ProductId == id).FirstOrDefault()",
+            "description": "Retrieves single product by primary key",
+            "entities_accessed": ["Products"],
+            "parameters": ["id"],
+            "conversion_required": false,
+            "notes": "FirstOrDefault() translates to LIMIT 1"
+          },
+          {
+            "query_id": "LINQ_005",
+            "method": "GetProductNameById",
+            "line_number": 46,
+            "query_type": "SELECT with WHERE and projection",
+            "linq_pattern": "Products.Where(p => p.ProductId == id).FirstOrDefault().Name",
+            "description": "Retrieves product name by ID",
+            "entities_accessed": ["Products"],
+            "parameters": ["id"],
+            "conversion_required": false,
+            "notes": "Property access after query execution"
+          }
+        ]
+      },
+      {
+        "file": "Services/ShoppingCart.cs",
+        "class": "ShoppingCart",
+        "queries": [
+          {
+            "query_id": "LINQ_006",
+            "method": "CreateOrder",
+            "line_number": 36,
+            "query_type": "INSERT multiple with transaction",
+            "linq_pattern": "OrderDetails.Add() in loop, then SaveChanges()",
+            "description": "Creates order details for all cart items and calculates total",
+            "entities_accessed": ["OrderDetails", "Orders"],
+            "parameters": ["order", "cartItems"],
+            "conversion_required": false,
+            "notes": "SaveChanges() wraps in implicit transaction, EmptyCart() called after"
+          },
+          {
+            "query_id": "LINQ_007",
+            "method": "EmptyCart",
+            "line_number": 56,
+            "query_type": "DELETE with WHERE",
+            "linq_pattern": "Carts.Where(cart => cart.CartId == ShoppingCartId), Remove() in loop, SaveChanges()",
+            "description": "Removes all cart items for current shopping session",
+            "entities_accessed": ["Carts"],
+            "parameters": ["ShoppingCartId"],
+            "conversion_required": false,
+            "notes": "Bulk delete with foreach loop"
+          },
+          {
+            "query_id": "LINQ_008",
+            "method": "AddToCart",
+            "line_number": 90,
+            "query_type": "SELECT with WHERE and INSERT/UPDATE",
+            "linq_pattern": "Carts.SingleOrDefault(), conditional Add() or increment, SaveChanges()",
+            "description": "Adds product to cart or increments count if already exists",
+            "entities_accessed": ["Carts"],
+            "parameters": ["id", "ShoppingCartId"],
+            "conversion_required": false,
+            "notes": "Upsert-like pattern with conditional logic"
+          },
+          {
+            "query_id": "LINQ_009",
+            "method": "GetCount",
+            "line_number": 107,
+            "query_type": "SELECT with WHERE and SUM",
+            "linq_pattern": "Carts.Where(cartItems.CartId == ShoppingCartId).Select(cartItems.Count).Sum()",
+            "description": "Calculates total item count in cart",
+            "entities_accessed": ["Carts"],
+            "parameters": ["ShoppingCartId"],
+            "conversion_required": false,
+            "notes": "Aggregation query, returns 0 if null"
+          },
+          {
+            "query_id": "LINQ_010",
+            "method": "RemoveFromCart",
+            "line_number": 115,
+            "query_type": "SELECT with WHERE and UPDATE/DELETE",
+            "linq_pattern": "Carts.Single(), conditional decrement or Remove(), SaveChanges()",
+            "description": "Decrements cart item count or removes if count reaches 0",
+            "entities_accessed": ["Carts"],
+            "parameters": ["id", "ShoppingCartId"],
+            "conversion_required": false,
+            "notes": "Conditional update or delete based on count"
+          },
+          {
+            "query_id": "LINQ_011",
+            "method": "GetCartItems",
+            "line_number": 137,
+            "query_type": "SELECT with WHERE",
+            "linq_pattern": "Carts.Where(cart => cart.CartId == ShoppingCartId).ToList()",
+            "description": "Retrieves all cart items for display",
+            "entities_accessed": ["Carts"],
+            "parameters": ["ShoppingCartId"],
+            "conversion_required": false,
+            "notes": "Includes Product navigation property via lazy loading"
+          },
+          {
+            "query_id": "LINQ_012",
+            "method": "GetTotal",
+            "line_number": 142,
+            "query_type": "SELECT with WHERE, JOIN, and SUM",
+            "linq_pattern": "Carts.Where().Select(Count * Product.Price).Sum()",
+            "description": "Calculates total price of all items in cart",
+            "entities_accessed": ["Carts", "Products"],
+            "parameters": ["ShoppingCartId"],
+            "conversion_required": false,
+            "notes": "Navigation property Product.Price generates JOIN, returns 0 if null"
+          }
+        ]
+      },
+      {
+        "file": "Services/OrderProcessing.cs",
+        "class": "OrderProcessing",
+        "queries": [
+          {
+            "query_id": "LINQ_013",
+            "method": "ProcessOrder",
+            "line_number": 23,
+            "query_type": "INSERT with transaction",
+            "linq_pattern": "Orders.Add(order), SaveChanges(), then cart.CreateOrder()",
+            "description": "Adds order to database and processes cart checkout",
+            "entities_accessed": ["Orders"],
+            "parameters": ["order"],
+            "conversion_required": false,
+            "notes": "Calls ShoppingCart.CreateOrder() which handles OrderDetails and cart clearing"
+          }
+        ]
+      }
+    ],
+    "additional_database_operations": [
+      {
+        "file": "Models/GadgetsOnlineInitializer.cs",
+        "query_id": "LINQ_014",
+        "method": "Seed",
+        "query_type": "INSERT bulk seed data",
+        "linq_pattern": "Categories.Add() and Products.Add() in loops, SaveChanges()",
+        "description": "Seeds initial database with 5 categories and 13 products",
+        "entities_accessed": ["Categories", "Products"],
+        "conversion_required": false,
+        "notes": "Database initialization only runs on first startup"
+      },
+      {
+        "file": "Startup.cs",
+        "query_id": "LINQ_015",
+        "method": "Configure",
+        "query_type": "Database initialization",
+        "linq_pattern": "Database.SetInitializer(), Database.Initialize()",
+        "description": "Initializes database schema and seed data",
+        "entities_accessed": ["All entities"],
+        "conversion_required": false,
+        "notes": "Uses CreateDatabaseIfNotExists strategy"
+      }
+    ]
+  },
+  "extraction_notes": {
+    "no_dms_conversion_required": true,
+    "reason": "All database operations use LINQ to Entities, which are automatically translated to PostgreSQL-compatible SQL by EntityFramework6.Npgsql provider at runtime",
+    "linq_to_sql_translation": "Handled automatically by Npgsql provider",
+    "transaction_handling": "Entity Framework DbContext provides implicit transactions via SaveChanges()",
+    "schema_object_names": "No schema transformations required - all entity names map directly",
+    "manual_conversion_required": false
+  }
+}

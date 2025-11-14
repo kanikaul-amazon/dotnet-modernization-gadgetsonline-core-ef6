@@ -1,0 +1,32 @@
+{
+  "number_of_statements_processed": 0,
+  "number_of_statements_equivalent": 0,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 0,
+  "migration_type": "Entity Framework 6 with LINQ to Entities",
+  "summary": "No raw SQL statements exist in this application. All database operations are performed through Entity Framework 6 LINQ queries, which are automatically translated to PostgreSQL by the EntityFramework6.Npgsql provider.",
+  "details": {
+    "total_linq_queries_analyzed": 15,
+    "linq_query_locations": [
+      "Services/Inventory.cs:GetBestSellers() - Products.Take(count).ToList()",
+      "Services/Inventory.cs:GetAllCategories() - Categories.ToList()",
+      "Services/Inventory.cs:GetAllProductsInCategory() - Products.Where().ToList()",
+      "Services/Inventory.cs:GetProductById() - Products.Where().FirstOrDefault()",
+      "Services/Inventory.cs:GetProductNameById() - Products.Where().FirstOrDefault().Name",
+      "Services/ShoppingCart.cs:CreateOrder() - OrderDetails.Add() and SaveChanges()",
+      "Services/ShoppingCart.cs:EmptyCart() - Carts.Where() and Remove()",
+      "Services/ShoppingCart.cs:AddToCart() - Carts.SingleOrDefault() and Add()",
+      "Services/ShoppingCart.cs:GetCount() - Carts.Where().Select().Sum()",
+      "Services/ShoppingCart.cs:RemoveFromCart() - Carts.Single() and Remove()",
+      "Services/ShoppingCart.cs:GetCartItems() - Carts.Where().ToList()",
+      "Services/ShoppingCart.cs:GetTotal() - Carts.Where().Select().Sum()",
+      "Services/OrderProcessing.cs:ProcessOrder() - Orders.Add() and SaveChanges()",
+      "Models/GadgetsOnlineInitializer.cs:Seed() - Categories.Add() and Products.Add()",
+      "Startup.cs:Configure() - Database.Initialize()"
+    ],
+    "database_provider": "EntityFramework6.Npgsql v6.4.3",
+    "entity_framework_version": "6.5.1",
+    "conversion_approach": "No SQL statement conversion required - LINQ queries are translated automatically by the Npgsql provider",
+    "schema_compatibility": "All entity models use standard CLR types (int, string, decimal, DateTime) that map directly to PostgreSQL types"
+  }
+}
