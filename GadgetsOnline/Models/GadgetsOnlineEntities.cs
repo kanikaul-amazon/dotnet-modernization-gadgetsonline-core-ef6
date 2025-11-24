@@ -1,6 +1,10 @@
 ﻿using GadgetsOnline.Models;
+using System;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Npgsql;
 
 namespace GadgetsOnline.Models
@@ -38,84 +42,121 @@ namespace GadgetsOnline.Models
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
 
+        public override int SaveChanges()
+        {
+            FixDateTimeKinds();
+            return base.SaveChanges();
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            FixDateTimeKinds();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void FixDateTimeKinds()
+        {
+            var entries = ChangeTracker.Entries()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+
+            foreach (var entry in entries)
+            {
+                foreach (var property in entry.CurrentValues.PropertyNames)
+                {
+                    var value = entry.CurrentValues[property];
+                    if (value is DateTime dateTime && dateTime.Kind != DateTimeKind.Utc)
+                    {
+                        entry.CurrentValues[property] = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+                    }
+                }
+            }
+        }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            // Configure table and column mappings for Product
+            // Apply table mappings with schema
             modelBuilder.Entity<Product>()
-                .ToTable("products", "bobsusedbookstore_dbo")
-                .Property(p => p.ProductId).HasColumnName("productid");
-            modelBuilder.Entity<Product>()
-                .Property(p => p.CategoryId).HasColumnName("categoryid");
-            modelBuilder.Entity<Product>()
-                .Property(p => p.Name).HasColumnName("name");
-            modelBuilder.Entity<Product>()
-                .Property(p => p.Price).HasColumnName("price");
-            modelBuilder.Entity<Product>()
-                .Property(p => p.ProductArtUrl).HasColumnName("productarturl");
-
-            // Configure table and column mappings for Category
+                .ToTable("products", "bobsusedbookstore_dbo");
             modelBuilder.Entity<Category>()
-                .ToTable("categories", "bobsusedbookstore_dbo")
-                .Property(c => c.CategoryId).HasColumnName("categoryid");
+                .ToTable("categories", "bobsusedbookstore_dbo");
+            modelBuilder.Entity<Cart>()
+                .ToTable("carts", "bobsusedbookstore_dbo");
+            modelBuilder.Entity<Order>()
+                .ToTable("orders", "bobsusedbookstore_dbo");
+            modelBuilder.Entity<OrderDetail>()
+                .ToTable("orderdetails", "bobsusedbookstore_dbo");
+
+            // Apply column mappings for Product
+            modelBuilder.Entity<Product>()
+                .Property(e => e.ProductId).HasColumnName("productid");
+            modelBuilder.Entity<Product>()
+                .Property(e => e.CategoryId).HasColumnName("categoryid");
+            modelBuilder.Entity<Product>()
+                .Property(e => e.Name).HasColumnName("name");
+            modelBuilder.Entity<Product>()
+                .Property(e => e.Price).HasColumnName("price");
+            modelBuilder.Entity<Product>()
+                .Property(e => e.ProductArtUrl).HasColumnName("productarturl");
+
+            // Apply column mappings for Category
             modelBuilder.Entity<Category>()
-                .Property(c => c.Name).HasColumnName("name");
+                .Property(e => e.CategoryId).HasColumnName("categoryid");
             modelBuilder.Entity<Category>()
-                .Property(c => c.Description).HasColumnName("description");
+                .Property(e => e.Name).HasColumnName("name");
+            modelBuilder.Entity<Category>()
+                .Property(e => e.Description).HasColumnName("description");
 
-            // Configure table and column mappings for Cart
+            // Apply column mappings for Cart
             modelBuilder.Entity<Cart>()
-                .ToTable("carts", "bobsusedbookstore_dbo")
-                .Property(c => c.RecordId).HasColumnName("recordid");
+                .Property(e => e.RecordId).HasColumnName("recordid");
             modelBuilder.Entity<Cart>()
-                .Property(c => c.CartId).HasColumnName("cartid");
+                .Property(e => e.CartId).HasColumnName("cartid");
             modelBuilder.Entity<Cart>()
-                .Property(c => c.ProductId).HasColumnName("productid");
+                .Property(e => e.ProductId).HasColumnName("productid");
             modelBuilder.Entity<Cart>()
-                .Property(c => c.Count).HasColumnName("count");
+                .Property(e => e.Count).HasColumnName("count");
             modelBuilder.Entity<Cart>()
-                .Property(c => c.DateCreated).HasColumnName("datecreated");
+                .Property(e => e.DateCreated).HasColumnName("datecreated");
 
-            // Configure table and column mappings for Order
+            // Apply column mappings for Order
             modelBuilder.Entity<Order>()
-                .ToTable("orders", "bobsusedbookstore_dbo")
-                .Property(o => o.OrderId).HasColumnName("orderid");
+                .Property(e => e.OrderId).HasColumnName("orderid");
             modelBuilder.Entity<Order>()
-                .Property(o => o.OrderDate).HasColumnName("orderdate");
+                .Property(e => e.OrderDate).HasColumnName("orderdate");
             modelBuilder.Entity<Order>()
-                .Property(o => o.Username).HasColumnName("username");
+                .Property(e => e.Username).HasColumnName("username");
             modelBuilder.Entity<Order>()
-                .Property(o => o.FirstName).HasColumnName("firstname");
+                .Property(e => e.FirstName).HasColumnName("firstname");
             modelBuilder.Entity<Order>()
-                .Property(o => o.LastName).HasColumnName("lastname");
+                .Property(e => e.LastName).HasColumnName("lastname");
             modelBuilder.Entity<Order>()
-                .Property(o => o.Address).HasColumnName("address");
+                .Property(e => e.Address).HasColumnName("address");
             modelBuilder.Entity<Order>()
-                .Property(o => o.City).HasColumnName("city");
+                .Property(e => e.City).HasColumnName("city");
             modelBuilder.Entity<Order>()
-                .Property(o => o.State).HasColumnName("state");
+                .Property(e => e.State).HasColumnName("state");
             modelBuilder.Entity<Order>()
-                .Property(o => o.PostalCode).HasColumnName("postalcode");
+                .Property(e => e.PostalCode).HasColumnName("postalcode");
             modelBuilder.Entity<Order>()
-                .Property(o => o.Country).HasColumnName("country");
+                .Property(e => e.Country).HasColumnName("country");
             modelBuilder.Entity<Order>()
-                .Property(o => o.Phone).HasColumnName("phone");
+                .Property(e => e.Phone).HasColumnName("phone");
             modelBuilder.Entity<Order>()
-                .Property(o => o.Email).HasColumnName("email");
+                .Property(e => e.Email).HasColumnName("email");
             modelBuilder.Entity<Order>()
-                .Property(o => o.Total).HasColumnName("total");
+                .Property(e => e.Total).HasColumnName("total");
 
-            // Configure table and column mappings for OrderDetail
+            // Apply column mappings for OrderDetail
             modelBuilder.Entity<OrderDetail>()
-                .ToTable("orderdetails", "bobsusedbookstore_dbo")
-                .Property(od => od.OrderDetailId).HasColumnName("orderdetailid");
+                .Property(e => e.OrderDetailId).HasColumnName("orderdetailid");
             modelBuilder.Entity<OrderDetail>()
-                .Property(od => od.OrderId).HasColumnName("orderid");
+                .Property(e => e.OrderId).HasColumnName("orderid");
             modelBuilder.Entity<OrderDetail>()
-                .Property(od => od.ProductId).HasColumnName("productid");
+                .Property(e => e.ProductId).HasColumnName("productid");
             modelBuilder.Entity<OrderDetail>()
-                .Property(od => od.Quantity).HasColumnName("quantity");
+                .Property(e => e.Quantity).HasColumnName("quantity");
             modelBuilder.Entity<OrderDetail>()
-                .Property(od => od.UnitPrice).HasColumnName("unitprice");
+                .Property(e => e.UnitPrice).HasColumnName("unitprice");
 
             // Configure relationships
             modelBuilder.Entity<Category>()
